@@ -1,0 +1,37 @@
+<div ng-init="getRoomDetails()" ng-hide=getName>
+    <div class="page-header">
+        <h1>{{name}}, welcome to room {{room.name}}</h1>
+    </div>
+
+    You have voted:
+    <h2 class="vote">
+        {{selectedNumber}}
+    </h2>
+
+    <div class="row">
+        <button type="button" class="btn btn-default btn-lg" ng-repeat="number in numbers" ng-click="voted(number)">{{number}}</button>
+    </div>
+
+    <div class="row">
+        <button type="button" class="btn btn-default btn-lg" ng-click="revealVotes()" ng-show=isOwner>reveal votes</button>
+    </div>
+
+    <h2>votes</h2>
+    <table class="table">
+        <tr ng-repeat="vote in votes">
+            <td>{{vote.name}}</td>
+            <td><span ng-show=vote.hasVoted class="glyphicon glyphicon-ok"></span></td>
+            <td ng-show="showVotes">{{vote.vote}}</td>
+            <td><span ng-show=vote.isOwner class="glyphicon glyphicon-star"></span></td>
+        </tr>
+    </table>
+
+</div>
+<div class="row" ng-show=getName>
+    <input type="text" class="form-control" id="name" placeholder="Enter a name" ng-model="name">
+    </p>
+    <p>
+        <button class="btn btn-xs btn-success" ng-click="setName()">Enter Room</button>
+    </p>
+</div>
+
