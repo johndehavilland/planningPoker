@@ -26,8 +26,11 @@ angular.module('clientApp')
                 //call server to get room details
                 roomService.getRoom(id, $scope.name).then(function (response) {
                     $log.log("room details retrieved");
+
                     $scope.room = response.data;
+
                     $scope.isOwner = response.data.owner === $scope.name
+
                     socket.emit('join:room', {
                         name: $scope.name,
                         room_id: id,
@@ -39,11 +42,11 @@ angular.module('clientApp')
         }
 
         $scope.isOwner = false;
-    
+
         $scope.showVotes = false;
-    
-        $scope.revealVotes = function(){
-             $scope.showVotes = true;
+
+        $scope.revealVotes = function () {
+            $scope.showVotes = true;
             socket.emit('reveal:votes');
         }
 
@@ -66,21 +69,13 @@ angular.module('clientApp')
             $scope.selectedNumber = number;
 
             socket.emit('selected:number', {
-                room_id: $scope.room_id,
-                name: $scope.name,
                 vote: number
             });
-        }
-
-        socket.on('init', function (data) {
-            $log.log("initialize");
-        });
+        };
 
         $scope.votes = {};
 
         socket.on('selected:number', function (data) {
-            $log.log("new vote: " + data);
-
             $scope.votes[data.name] = data;
 
         });
@@ -90,10 +85,9 @@ angular.module('clientApp')
             $scope.votes = users;
 
         });
-
     
-     socket.on('reveal:votes', function () {
-              $scope.showVotes = true;
+        socket.on('reveal:votes', function () {
+            $scope.showVotes = true;
 
         });
 

@@ -1,31 +1,39 @@
 var users = {};
 
-var connectedUsers = {};
-
 module.exports = function (io) { // io stuff here... io.on('conection..... 
     io.on('connection', function (socket) {
+
         console.log('a user connected');
+
         var name, room_id;
+
         socket.on('selected:number', function (data) {
-            console.log("vote" + JSON.stringify(data));
 
-            users[data.room_id + data.name] = {
-                name: data.name,
-                hasVoted: true,
-                vote: data.vote,
-                isOwner: data.isOwner
+            console.log(socket.username + " has voted");
+
+            var existingUser = users[socket.room][socket.username];
+            
+            if (existingUser === undefined) {
+                console.log("user does not exist");
             }
+            
+            existingUser.hasVoted = true;
+            existingUser.vote = data.vote;
 
-            //            socket.broadcast.emit('selected:number', data);
-            socket.broadcast.emit('join:room', users);
+            socket.broadcast.to(socket.room).emit('join:room', users[socket.room]);
 
-            socket.emit('join:room', users);
+            socket.emit('join:room', users[socket.room]);
         });
 
 
         socket.on('join:room', function (data) {
-            console.log(data.name + "has joined the room");
-            console.log("joining: " + JSON.stringify(data));
+
+            console.log(data.name + " has joined the room");
+
+            socket.username = data.name;
+            socket.room = data.room_id;
+
+            socket.join(data.room_id);
 
             if (users[data.room_id] === undefined) {
                 users[data.room_id] = {};
@@ -40,37 +48,27 @@ module.exports = function (io) { // io stuff here... io.on('conection.....
                 };
             }
 
-            name = data.room_id + data.name;
+            socket.broadcast.to(data.room_id).emit('join:room', users[data.room_id]);
 
-            if (connectedUsers[data.room_id] === undefined) {
-                connectedUsers[data.room_id] = [];
-            }
-
-            connectedUsers[data.room_id].push(socket);
-
-            console.log("socket id: " + connectedUsers[data.room_id][0]);
-            
-            //            socket.broadcast.emit('join:room', users[data.room_id]);
-            for (var i in connectedUsers[data.room_id]) {
-                connectedUsers[data.room_id][i].emit('join:room', users[data.room_id]);
-            }
+            socket.emit('join:room', users[data.room_id]);
         });
 
         socket.on('disconnect', function () {
-            console.log("user disconnected");
-            delete users[name];
-            socket.broadcast.emit('join:room', users);
+            console.log(socket.username + " disconnected");
+
+            delete users[socket.room][socket.username];
+
+            socket.broadcast.to(socket.room).emit('join:room', users[socket.room]);
+
+            socket.leave(socket.room);
         });
 
 
         socket.on('reveal:votes', function () {
             console.log("reveal votes");
 
-            socket.broadcast.emit('reveal:votes');
+            socket.broadcast.to(socket.room).emit('reveal:votes');
         });
 
-
     });
-
-
 };
