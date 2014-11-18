@@ -1,37 +1,67 @@
-<div ng-init="getRoomDetails()" ng-hide=getName>
+<div >
     <div class="page-header">
-        <h1>{{name}}, welcome to room {{room.name}}</h1>
+        <h3>{{room.name}}<a class="pull-right" href="" ng-click=returnHome()><small>Create new room</small></a></h3>
+        
     </div>
 
-    You have voted:
-    <h2 class="vote">
-        {{selectedNumber}}
-    </h2>
+    <div class="row" ng-init="getRoomDetails()" ng-hide=getName>
+        <div class="col-sm-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Information</h3>
+                </div>
+                <div class="panel-body">
+                    <p>Welcome, {{name}}
+                        <span ng-show="isOwner"> you are the room owner</span>
+                        <span ng-hide="isOwner"> you are not the room owner</span>
+                    </p>
+                    <p>
+                        Your vote is: {{selectedNumber}}
+                    </p>
+                    <p>
+                        <button type="button" class="btn btn-default btn-sm" ng-click="revealVotes()" ng-show=isOwner>
+                            reveal votes
+                        </button>
+                    </p>
 
-    <div class="row">
-        <button type="button" class="btn btn-default btn-lg" ng-repeat="number in numbers" ng-click="voted(number)">{{number}}</button>
+                    <p>
+                        <button type="button" class="btn btn-default btn-sm" ng-click="resetVotes()" ng-show=isOwner>
+                            reset votes
+                        </button>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-8">
+            <div class="row">
+                <input type="button" ng-disabled=isDisabled class="col-sm-1 btn btn-default btn-sm" ng-repeat="number in numbers" ng-click="voted(number)" value="{{number}}">
+                    
+                </input>
+            </div>
+
+            <h3>Team</h3>
+
+            <table class="table">
+                <tr ng-repeat="vote in votes">
+                    <td>{{vote.name}}</td>
+                    <td><span ng-show=vote.hasVoted class="glyphicon glyphicon-ok"></span>
+                        <span ng-hide=vote.hasVoted class="glyphicon glyphicon-remove"></span>
+                    </td>
+                    
+                    <td ng-show="showVotes">{{vote.vote}}</td>
+                    <td><span ng-show=vote.isOwner class="glyphicon glyphicon-star"></span>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
-
-    <div class="row">
-        <button type="button" class="btn btn-default btn-lg" ng-click="revealVotes()" ng-show=isOwner>reveal votes</button>
+    <div class="row" ng-show=getName>
+        <input type="text" class="form-control" id="name" placeholder="Enter a name" ng-model="name">
+        </p>
+        <p>
+            <button class="btn btn-xs btn-success" ng-click="setName()">Enter Room</button>
+        </p>
     </div>
-
-    <h2>votes</h2>
-    <table class="table">
-        <tr ng-repeat="vote in votes">
-            <td>{{vote.name}}</td>
-            <td><span ng-show=vote.hasVoted class="glyphicon glyphicon-ok"></span></td>
-            <td ng-show="showVotes">{{vote.vote}}</td>
-            <td><span ng-show=vote.isOwner class="glyphicon glyphicon-star"></span></td>
-        </tr>
-    </table>
-
 </div>
-<div class="row" ng-show=getName>
-    <input type="text" class="form-control" id="name" placeholder="Enter a name" ng-model="name">
-    </p>
-    <p>
-        <button class="btn btn-xs btn-success" ng-click="setName()">Enter Room</button>
-    </p>
-</div>
-
+<script src="/socket.io/socket.io.js"></script>

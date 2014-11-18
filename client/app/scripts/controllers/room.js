@@ -8,12 +8,14 @@
  * Controller of the clientApp
  */
 angular.module('clientApp')
-    .controller('RoomCtrl', function ($scope, $log, $routeParams, socket, $localStorage, roomService) {
-        $scope.numbers = [0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100];
+    .controller('RoomCtrl', function ($scope, $log, $routeParams, socket, $localStorage, $location, roomService) {
+        $scope.numbers = [0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100, '?'];
 
 
         $scope.getName = false;
 
+        $scope.selectedNumber = "";
+    
         $scope.getRoomDetails = function () {
 
             if ($localStorage.pkrplnr_name === undefined) {
@@ -23,12 +25,13 @@ angular.module('clientApp')
                 $scope.getName = false;
                 var id = $routeParams.id;
                 $scope.room_id = id;
+                $scope.isDisabled = false;
                 //call server to get room details
                 roomService.getRoom(id, $scope.name).then(function (response) {
                     $log.log("room details retrieved");
 
                     $scope.room = response.data;
-
+                    $scope.isDisabled = false;
                     $scope.isOwner = response.data.owner === $scope.name
 
                     socket.emit('join:room', {
@@ -40,6 +43,11 @@ angular.module('clientApp')
                 });
             }
         }
+        
+        $scope.returnHome = function(){
+            socket.emit('leave:room');
+            $location.path("/");
+        }
 
         $scope.isOwner = false;
 
@@ -47,16 +55,28 @@ angular.module('clientApp')
 
         $scope.revealVotes = function () {
             $scope.showVotes = true;
+            $scope.isDisabled = true;
             socket.emit('reveal:votes');
+        }
+
+        $scope.resetVotes = function () {
+            $scope.showVotes = false;
+            $scope.isDisabled = false;
+            $scope.selectedNumber = "";
+            socket.emit('reset:votes');
         }
 
         $scope.setName = function () {
             $localStorage.pkrplnr_name = $scope.name;
+            $scope.getName = false;
+            $scope.getRoomDetails();
         }
 
         $scope.room_id;
 
-        $scope.selectedNumber = {};
+       // $scope.selectedNumber = "";
+
+        $scope.isDisabled = false;
 
         $scope.name = $localStorage.pkrplnr_name;
 
@@ -83,11 +103,21 @@ angular.module('clientApp')
         socket.on('join:room', function (users) {
             $log.log(name + " is joining room");
             $scope.votes = users;
+            $scope.isDisabled = false;
+            
 
         });
-    
+
         socket.on('reveal:votes', function () {
             $scope.showVotes = true;
+            $scope.isDisabled = true;
+
+        });
+
+        socket.on('reset:votes', function () {
+            $scope.showVotes = false;
+            
+            $scope.selectedNumber = "";
 
         });
 
