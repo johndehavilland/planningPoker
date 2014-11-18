@@ -7,8 +7,11 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var rooms = require('./routes/rooms');
+
 
 var app = express();
+
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
@@ -57,6 +60,9 @@ if (app.get('env') === 'production') {
         });
     });
 }
+
+app.use("/rooms", rooms);
+
 
 
 module.exports = app;
