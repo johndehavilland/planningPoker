@@ -12,11 +12,11 @@ module.exports = function (io) { // io stuff here... io.on('conection.....
             console.log(socket.username + " has voted");
 
             var existingUser = users[socket.room][socket.username];
-            
+
             if (existingUser === undefined) {
                 console.log("user does not exist");
             }
-            
+
             existingUser.hasVoted = true;
             existingUser.vote = data.vote;
 
@@ -56,11 +56,26 @@ module.exports = function (io) { // io stuff here... io.on('conection.....
         socket.on('disconnect', function () {
             console.log(socket.username + " disconnected");
 
-            delete users[socket.room][socket.username];
+            if (typeof(users[socket.room]) !== 'undefined' && typeof(users[socket.room][socket.username]) !== 'undefined') {
+                delete users[socket.room][socket.username];
 
-            socket.broadcast.to(socket.room).emit('join:room', users[socket.room]);
+                socket.broadcast.to(socket.room).emit('join:room', users[socket.room]);
 
-            socket.leave(socket.room);
+                socket.leave(socket.room);
+            }
+        });
+
+        
+         socket.on('leave:room', function () {
+            console.log(socket.username + " leaving room");
+
+            if (typeof(users[socket.room]) !== 'undefined' && typeof(users[socket.room][socket.username]) !== 'undefined') {
+                delete users[socket.room][socket.username];
+
+                socket.broadcast.to(socket.room).emit('join:room', users[socket.room]);
+
+                socket.leave(socket.room);
+            }
         });
 
 
@@ -68,6 +83,18 @@ module.exports = function (io) { // io stuff here... io.on('conection.....
             console.log("reveal votes");
 
             socket.broadcast.to(socket.room).emit('reveal:votes');
+        });
+        
+        socket.on('reset:votes', function () {
+            console.log("reset votes");
+            for(var i in users[socket.room]){
+                users[socket.room][i].hasVoted = false;
+                users[socket.room][i].vote = "";
+            }
+//            socket.broadcast.to(socket.room).emit('reset:votes');
+            socket.broadcast.to(socket.room).emit('join:room', users[socket.room]);
+
+            socket.emit('join:room', users[socket.room]);
         });
 
     });
