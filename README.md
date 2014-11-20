@@ -11,3 +11,4 @@ It is a very simple site that allows someone to create a room and then share tha
 
 Once a team member has voted the page reflects that by flipping the X to a check.
 
+This site can be seen here: [http://www.planningpoker.biz](http://www.planningpoker.biz)
