@@ -1,7 +1,7 @@
-<div >
-    <div class="page-header">
+<div>
+    <div class="page-header" ng-hide=getName>
         <h3>{{room.name}}<a class="pull-right" href="" ng-click=returnHome()><small>Create new room</small></a></h3>
-        
+
     </div>
 
     <div class="row" ng-init="getRoomDetails()" ng-hide=getName>
@@ -36,7 +36,7 @@
         <div class="col-sm-8">
             <div class="row">
                 <input type="button" ng-disabled=isDisabled class="col-sm-1 btn btn-default btn-sm" ng-repeat="number in numbers" ng-click="voted(number)" value="{{number}}">
-                    
+
                 </input>
             </div>
 
@@ -48,7 +48,7 @@
                     <td><span ng-show=vote.hasVoted class="glyphicon glyphicon-ok"></span>
                         <span ng-hide=vote.hasVoted class="glyphicon glyphicon-remove"></span>
                     </td>
-                    
+
                     <td ng-show="showVotes">{{vote.vote}}</td>
                     <td><span ng-show=vote.isOwner class="glyphicon glyphicon-star"></span>
                     </td>
@@ -56,12 +56,19 @@
             </table>
         </div>
     </div>
-    <div class="row" ng-show=getName>
-        <input type="text" class="form-control" id="name" placeholder="Enter a name" ng-model="name">
-        </p>
-        <p>
-            <button class="btn btn-xs btn-success" ng-click="setName()">Enter Room</button>
-        </p>
-    </div>
+    <form class="form-horizontal" name="form" ng-submit=setName() ng-show=getName>
+        <div class="form-group">
+
+
+            <label class="col-sm-3 control-label" for="name">Your name:</label>
+
+            <div class="col-sm-7">
+                <input type="text" class="form-control" id="name" placeholder="Enter a user name" ng-model="name" required>
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" class="btn btn-sm btn-success">Enter Room</button>
+            </div>
+        </div>
+    </form>
 </div>
 <script src="/socket.io/socket.io.js"></script>
